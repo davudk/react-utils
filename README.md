@@ -105,13 +105,14 @@ You can also set the `mode` prop to `"any"` or `"all"` (default) to determine ho
 ```tsx
 function TestComponent() {
   const profileLoader = useAsync<UserProfile>(...):
-  
+  useEffect(profileLoader.load, []);
+
   return (
     <AsyncRender control={profileLoader}>
 
       <AsyncRender.State result>
         <div>
-        Hi, {profileLoader.result.username}!
+          Hi, {profileLoader.result.username}!
         </div>
       </AsyncRender.State>
 
