@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { MapController, MapControllerOptions } from '../utils';
 import { useForceRender } from './use-force-render';
 
-export function useMap<K = any, V = any>(options?: MapControllerOptions) {
+export function useMap<K = any, V = any>(options?: MapControllerOptions): MapController<K, V> {
     const controllerRef = useRef<MapController<K, V>>();
     const forceRender = useForceRender();
 

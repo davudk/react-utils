@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 export interface TimeoutOptions {
+    autoStart?: boolean;
     delay: number;
     callback: Function;
-    autoStart?: boolean;
     repeat?: boolean;
 }
 

@@ -17,5 +17,4 @@ export function useAsync<TResult = any, TParams = any>(options: AsyncControllerO
     }
 
     return controllerRef.current;
-
 }
