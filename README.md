@@ -1,6 +1,8 @@
 
 This library contains some commonly needed React utilities.
 
+## Hooks
+
 ### useArray
 ```tsx
 function TestComponent() {
@@ -15,7 +17,7 @@ function TestComponent() {
 ### useAsync
 ```tsx
 function TestComponent() {
-  const { result, previousResult, loading, error, load } = useAsync<UserProfile>({
+  const { result, prevResult, loading, error, load } = useAsync<UserProfile>({
     load: async () => {
       const res = await fetch('/api/profile');
       return res.json();
@@ -91,6 +93,50 @@ function TestComponent() {
 
   return (
     <div>Random value: {num}</div>
+  )
+}
+```
+
+## Components
+
+### AsyncRender
+You can also set the `mode` prop to `"any"` or `"all"` (default) to determine how the fields are required.
+
+```tsx
+function TestComponent() {
+  const profileLoader = useAsync<UserProfile>(...):
+  
+  return (
+    <AsyncRender control={profileLoader}>
+
+      <AsyncRender.State result>
+        <div>
+        Hi, {profileLoader.result.username}!
+        </div>
+      </AsyncRender.State>
+
+      <AsyncRender.State prevResult loading>
+        <div className="pointer-events-none opacity-50">
+          Hi, {profileLoader.result.username}!
+        </div>
+      </AsyncRender.State>
+
+      <AsyncRender.State prevResult={false} loading>
+        <div>
+          Loading...
+        </div>
+      </AsyncRender.State>
+
+      <AsyncRender.State error>
+        <div>
+          There was an error while loading your profile, see below:
+          <pre>
+            {JSON.stringify(profileLoader.error, null, 4)}
+          </pre>
+        </div>
+      </AsyncRender.State>
+
+    </AsyncRender>
   )
 }
 ```

@@ -8,7 +8,7 @@ export interface AsyncControllerOptions<TResult = any, TParams = any> {
 
 export class AsyncController<TResult = any, TParams = any> {
     private _result?: TResult;
-    private _previousResult?: TResult;
+    private _prevResult?: TResult;
     private _loading = false;
     private _error?: any;
 
@@ -17,13 +17,13 @@ export class AsyncController<TResult = any, TParams = any> {
     }
 
     get result() { return this._result; }
-    get previousResult() { return this._previousResult; }
+    get prevResult() { return this._prevResult; }
     get loading() { return this._loading; }
     get error() { return this._error; }
 
     set result(value: TResult | undefined) {
         this._result = value;
-        this._previousResult = undefined;
+        this._prevResult = undefined;
         this._loading = false;
         this._error = undefined;
         this.handleMutate();
@@ -31,14 +31,14 @@ export class AsyncController<TResult = any, TParams = any> {
 
     get empty(): boolean {
         return this._result === undefined
-            && this._previousResult === undefined
+            && this._prevResult === undefined
             && !this.loading
             && !this.error;
     }
 
     clear() {
         this._result = undefined;
-        this._previousResult = undefined;
+        this._prevResult = undefined;
         this._loading = false;
         this._error = undefined;
         this.handleMutate();
@@ -57,7 +57,7 @@ export class AsyncController<TResult = any, TParams = any> {
 
     private async loadImpl(callback: (params: TParams) => Promise<TResult>, params: TParams): Promise<void> {
         try {
-            this._previousResult = this._result;
+            this._prevResult = this._result;
             this._result = undefined;
             this._loading = true;
             this._error = undefined;
