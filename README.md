@@ -118,7 +118,7 @@ function TestComponent() {
 
       <AsyncRender.State prevResult loading>
         <div className="pointer-events-none opacity-50">
-          Hi, {profileLoader.result.username}!
+          Hi, {profileLoader.prevResult.username}!
         </div>
       </AsyncRender.State>
 
