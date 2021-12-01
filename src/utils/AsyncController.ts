@@ -45,8 +45,8 @@ export class AsyncController<TResult = any, TParams = any> {
         this.handleMutate();
     }
 
-    load(params: TParams): void {
-        this.loadImpl(this.options.load, params);
+    async load(params: TParams): Promise<void> {
+        await this.loadImpl(this.options.load, params).catch(() => undefined);
     }
 
     customLoad(callback: () => Promise<TResult>): void;
@@ -73,6 +73,7 @@ export class AsyncController<TResult = any, TParams = any> {
             this._loading = false;
             this._error = err;
             this.handleMutate();
+            throw err;
         }
     }
 
