@@ -14,6 +14,7 @@ export interface AsyncRenderStateProps<TResult = any, TParams = any> {
     loading?: boolean;
     error?: boolean;
     empty?: boolean;
+    orElse?: boolean;
 }
 
 export function AsyncRenderState<TResult = any, TParams = any>(props: AsyncRenderStateProps<TResult, TParams>) {
@@ -33,7 +34,7 @@ export function AsyncRenderState<TResult = any, TParams = any>(props: AsyncRende
 
     let invalid = false;
     if (mode === 'any') {
-        invalid = !conditions.includes(true);
+        invalid = !conditions.includes(true) && !props.orElse;
     } else if (mode === undefined || mode === 'all') {
         invalid = conditions.includes(false);
     } else {
