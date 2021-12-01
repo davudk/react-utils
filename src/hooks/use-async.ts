@@ -24,8 +24,9 @@ export function useAsync<TResult = any, TParams = any>(options: AsyncOptions<TRe
 
     const { autoLoad } = options;
     useEffect(() => {
-        if (autoLoad) {
-            controllerRef.current?.load(autoLoad.params);
+        if (autoLoad && controllerRef.current) {
+            controllerRef.current.load(autoLoad.params)
+                .catch(() => undefined);
         }
     }, [autoLoad?.params]);
 

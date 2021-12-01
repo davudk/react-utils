@@ -46,7 +46,7 @@ export class AsyncController<TResult = any, TParams = any> {
     }
 
     async load(params: TParams): Promise<void> {
-        await this.loadImpl(this.options.load, params).catch(() => undefined);
+        return this.loadImpl(this.options.load, params);
     }
 
     customLoad(callback: () => Promise<TResult>): void;
