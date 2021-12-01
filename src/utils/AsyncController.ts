@@ -1,7 +1,6 @@
 
 export interface AsyncControllerOptions<TResult = any, TParams = any> {
-    initialValue?: TResult;
-    initialValueProvider?(): TResult;
+    initial?: { value: TResult } | { provider(): TResult; };
     load(params: TParams): Promise<TResult>;
     onMutate?(): void;
 };
@@ -13,7 +12,9 @@ export class AsyncController<TResult = any, TParams = any> {
     private _error?: any;
 
     constructor(public readonly options: AsyncControllerOptions<TResult, TParams>) {
-        this._result = options.initialValueProvider?.() ?? options.initialValue;
+        const { initial } = options as any;
+        if (initial?.value !== undefined) this._result = initial?.value;
+        else if (initial?.provider) this._result = initial?.provider?.();
     }
 
     get result() { return this._result; }
