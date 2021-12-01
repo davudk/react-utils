@@ -27,7 +27,7 @@ export function AsyncRenderState<TResult = any, TParams = any>(props: AsyncRende
         check(props.result, controller.result !== undefined),
         check(props.prevResult, controller.prevResult !== undefined),
         check(props.loading, controller.loading),
-        check(props.error, controller.error),
+        check(props.error, controller.error !== undefined),
         check(props.empty, controller.empty)
     ];
 
