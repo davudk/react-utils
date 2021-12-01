@@ -4,7 +4,7 @@ import { AsyncController } from "../utils";
 export const AsyncRenderContext = createContext<AsyncController | null>(null);
 
 export interface AsyncRenderStateProps<TResult = any, TParams = any> {
-    children?: ReactNode;
+    children?: ReactNode | (() => ReactNode);
     control?: AsyncController<TResult, TParams>;
 
     mode?: 'any' | 'all';
@@ -41,7 +41,12 @@ export function AsyncRenderState<TResult = any, TParams = any>(props: AsyncRende
         throw new Error('Unknown mode specified: ' + mode)
     }
 
-    return invalid ? null : <>{props.children}</>;
+    if (invalid) return null;
+    else if (typeof props.children === 'function') {
+        return <>{props.children()}</>;
+    } else {
+        return <>{props.children}</>;
+    }
 
     function check(condition: boolean | undefined, valuePresent: boolean) {
         if (condition === undefined) return undefined;
