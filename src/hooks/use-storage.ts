@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useEffectSkipInitial } from "./use-effect-skip-initial";
 import { useForceRender } from "./use-force-render";
 import { useIsMounted } from './use-is-mounted';
@@ -13,7 +13,7 @@ export interface StorageOptions<T = any> {
     validate?: (value: T) => T;
 }
 
-const listeners = new Map<string, Function[]>();
+const listeners = new Map<string, Set<Function>>();
 
 export function useStorage<T = any>(name: string, options: StorageOptions<T>) {
     if (!globalThis.window) {
@@ -48,12 +48,14 @@ export function useStorage<T = any>(name: string, options: StorageOptions<T>) {
     useEffectSkipInitial(() => {
         storageRef.current = getStorage(options.type);
         refreshRef.current();
+    }, [options.type]);
 
+    useEffect(() => {
         if (!listeners.has(name)) {
-            listeners.set(name, []);
+            listeners.set(name, new Set());
         }
 
-        listeners.get(name)!.push(refreshRef.current);
+        listeners.get(name)!.add(refreshRef.current);
 
         if (options.type === 'localStorage') {
             window.addEventListener('storage', storageEventRef.current);
@@ -64,7 +66,7 @@ export function useStorage<T = any>(name: string, options: StorageOptions<T>) {
                 window.removeEventListener('storage', storageEventRef.current);
             }
 
-            listeners.set(name, listeners.get(name)!.filter(c => c !== refreshRef.current));
+            listeners.get(name)!.delete(refreshRef.current);
         };
     }, [options.type]);
 
