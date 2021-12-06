@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
+import { useEffectSkipInitial } from "./use-effect-skip-initial";
 import { useForceRender } from "./use-force-render";
 
 export type StorageType = 'localStorage' | 'sessionStorage';
@@ -30,15 +31,17 @@ export function useStorage<T = any>(name: string, options: StorageOptions<T>) {
             const validatedValue = (options.validate ?? (x => x))(parsedValue);
             valueRef.current = validatedValue;
         }
-        forceRender();
     });
     const storageEventRef = useRef<(e: StorageEvent) => void>(e => {
         if (e.key === name) refreshRef.current();
     });
 
-    useEffect(() => {
+    refreshRef.current();
+
+    useEffectSkipInitial(() => {
         storageRef.current = getStorage(options.type);
         refreshRef.current();
+        forceRender();
 
         if (!listeners.has(name)) {
             listeners.set(name, []);
@@ -58,7 +61,6 @@ export function useStorage<T = any>(name: string, options: StorageOptions<T>) {
             listeners.set(name, listeners.get(name)!.filter(c => c !== refreshRef.current));
         };
     }, [options.type]);
-
 
     const set = (value: T) => {
         const s = (options.serializer ?? JSON.stringify)(value);
