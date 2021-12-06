@@ -20,9 +20,10 @@ export function useStorage<T = any>(name: string, options: StorageOptions<T>) {
     }
 
     const forceRender = useForceRender();
+    const isMounted = useIsMounted();
     const valueRef = useRef<T>(options.defaultValue);
     const storageRef = useRef<Storage>(getStorage(options.type));
-    const refreshRef = useRef<Function>(() => {
+    const refreshRef = useRef((skipRender?: boolean) => {
         const s = storageRef.current.getItem(name);
         if (s === null) {
             valueRef.current = options.defaultValue;
@@ -31,17 +32,21 @@ export function useStorage<T = any>(name: string, options: StorageOptions<T>) {
             const validatedValue = (options.validate ?? (x => x))(parsedValue);
             valueRef.current = validatedValue;
         }
+        if (!skipRender) {
+            forceRender();
+        }
     });
     const storageEventRef = useRef<(e: StorageEvent) => void>(e => {
         if (e.key === name) refreshRef.current();
     });
 
-    refreshRef.current();
+    if (!isMounted()) {
+        refreshRef.current(true);
+    }
 
     useEffectSkipInitial(() => {
         storageRef.current = getStorage(options.type);
         refreshRef.current();
-        forceRender();
 
         if (!listeners.has(name)) {
             listeners.set(name, []);
