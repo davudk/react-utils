@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useForceRender } from "./use-force-render";
 
 export type StorageType = 'localStorage' | 'sessionStorage';
 
@@ -17,17 +18,19 @@ export function useStorage<T = any>(name: string, options: StorageOptions<T>) {
         return [options.defaultValue, () => { }, () => { }] as const;
     }
 
-    const [value, setValue] = useState<T>(options.defaultValue);
+    const forceRender = useForceRender();
+    const valueRef = useRef<T>(options.defaultValue);
     const storageRef = useRef<Storage>(getStorage(options.type));
     const refreshRef = useRef<Function>(() => {
         const s = storageRef.current.getItem(name);
         if (s === null) {
-            setValue(options.defaultValue);
+            valueRef.current = options.defaultValue;
         } else {
             const parsedValue = (options.parser ?? JSON.parse)(s);
             const validatedValue = (options.validate ?? (x => x))(parsedValue);
-            setValue(validatedValue);
+            valueRef.current = validatedValue;
         }
+        forceRender();
     });
     const storageEventRef = useRef<(e: StorageEvent) => void>(e => {
         if (e.key === name) refreshRef.current();
@@ -68,7 +71,7 @@ export function useStorage<T = any>(name: string, options: StorageOptions<T>) {
         listeners.get(name)?.forEach(c => c());
     };
 
-    return [value, set, clear] as const;
+    return [valueRef.current, set, clear] as const;
 }
 
 function getStorage(type: StorageType) {
