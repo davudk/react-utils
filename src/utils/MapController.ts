@@ -31,11 +31,22 @@ export class MapController<K = any, V = any> implements Map<K, V> {
         this.handleMutate();
     }
 
-    computeIfAbsent(key: K, provider: (key: K) => V): V | undefined {
+    computeIfAbsent(key: K, provider: (key: K) => V): V {
         if (this._map.has(key)) {
-            return this._map.get(key);
+            return this._map.get(key)!;
         } else {
             const value = provider(key);
+            this._map.set(key, value);
+            this.handleMutate();
+            return value;
+        }
+    }
+
+    async computeIfAbsentAsync(key: K, provider: (key: K) => Promise<V>): Promise<V> {
+        if (this._map.has(key)) {
+            return this._map.get(key)!;
+        } else {
+            const value = await provider(key);
             this._map.set(key, value);
             this.handleMutate();
             return value;
