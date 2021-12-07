@@ -31,6 +31,17 @@ export class MapController<K = any, V = any> implements Map<K, V> {
         this.handleMutate();
     }
 
+    computeIfAbsent(key: K, provider: (key: K) => V): V | undefined {
+        if (this._map.has(key)) {
+            return this._map.get(key);
+        } else {
+            const value = provider(key);
+            this._map.set(key, value);
+            this.handleMutate();
+            return value;
+        }
+    }
+
     delete(key: K): boolean {
         const v = this._map.delete(key);
         this.handleMutate();
