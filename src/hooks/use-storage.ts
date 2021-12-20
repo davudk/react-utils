@@ -72,7 +72,11 @@ export function useStorage<T = any>(name: string, options: StorageOptions<T>) {
 
     const set = (value: T) => {
         const s = (options.serializer ?? JSON.stringify)(value);
-        storageRef.current.setItem(name, s);
+        if (s === null || s === undefined) {
+            storageRef.current.removeItem(name);
+        } else {
+            storageRef.current.setItem(name, s);
+        }
         listeners.get(name)?.forEach(c => c());
     };
 
