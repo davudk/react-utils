@@ -1,14 +1,14 @@
 
 export interface AsyncControllerOptions<TResult = any, TParams = any> {
     initial?: { value: TResult } | { provider(): TResult; };
-    load: LoadHandler<TResult, TParams>;
+    load: AsyncLoadHandler<TResult, TParams>;
     onMutate?(): void;
 }
 
-export type LoadHandler<TResult = any, TParams = any> = (params: TParams, options: LoadOptions) => Promise<TResult>;
+export type AsyncLoadHandler<TResult = any, TParams = any> = (params: TParams, options: LoadOptions) => Promise<TResult>;
 
 export interface LoadOptions {
-    abortSignal: AbortSignal;
+    signal: AbortSignal;
 }
 
 export class AsyncController<TResult = any, TParams = any> {
@@ -70,7 +70,7 @@ export class AsyncController<TResult = any, TParams = any> {
         this.loadImpl(callback, params!);
     }
 
-    private async loadImpl(callback: LoadHandler<TResult, TParams>, params: TParams): Promise<void> {
+    private async loadImpl(callback: AsyncLoadHandler<TResult, TParams>, params: TParams): Promise<void> {
         const currentState = ++this._stateCounter;
         const isStateCurrent = () => currentState === this._stateCounter;
 
@@ -84,7 +84,7 @@ export class AsyncController<TResult = any, TParams = any> {
             this.handleMutate();
 
             const options: LoadOptions = {
-                abortSignal: this._abortController.signal
+                signal: this._abortController.signal
             }
             this._result = await callback(params, options);
 
