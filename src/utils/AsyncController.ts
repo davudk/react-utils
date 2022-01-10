@@ -59,8 +59,10 @@ export class AsyncController<TResult = any, TParams = any> {
         this._abortController?.abort();
     }
 
-    async load(params: TParams): Promise<void> {
-        return this.loadImpl(this.options.load, params);
+    async load(params: TParams, options?: { silently?: boolean }): Promise<void> {
+        const p = this.loadImpl(this.options.load, params);
+        if (options?.silently) return p.catch(() => { });
+        else return p;
     }
 
     customLoad(callback: () => Promise<TResult>): void;
