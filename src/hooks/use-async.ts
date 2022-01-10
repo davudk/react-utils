@@ -5,7 +5,7 @@ import { useForceRender } from './use-force-render';
 export interface AsyncOptions<TResult = any, TParams = any> extends AsyncControllerOptions<TResult, TParams> {
     autoLoad?: {
         params: TParams,
-        deps: DependencyList
+        deps?: DependencyList
     };
 }
 
