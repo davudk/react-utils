@@ -1,11 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { DependencyList, useEffect, useRef } from 'react';
 import { AsyncController, AsyncControllerOptions } from '../utils';
 import { useForceRender } from './use-force-render';
 
 export interface AsyncOptions<TResult = any, TParams = any> extends AsyncControllerOptions<TResult, TParams> {
     autoLoad?: {
-        params: TParams
-    }
+        params: TParams,
+        deps: DependencyList
+    };
 }
 
 export function useAsync<TResult = any, TParams = any>(options: AsyncOptions<TResult, TParams>): AsyncController<TResult, TParams> {
@@ -22,13 +23,12 @@ export function useAsync<TResult = any, TParams = any>(options: AsyncOptions<TRe
         });
     }
 
-    const { autoLoad } = options;
     useEffect(() => {
-        if (autoLoad && controllerRef.current) {
-            controllerRef.current.load(autoLoad.params)
+        if (options.autoLoad && controllerRef.current) {
+            controllerRef.current.load(options.autoLoad.params)
                 .catch(() => undefined);
         }
-    }, [autoLoad?.params]);
+    }, options.autoLoad?.deps);
 
     return controllerRef.current;
 }
