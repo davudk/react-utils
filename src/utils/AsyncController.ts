@@ -1,15 +1,23 @@
 
 export interface AsyncControllerOptions<TResult = any, TParams = any> {
     initial?: { value: TResult } | { provider(): TResult; };
-    load(params: TParams): Promise<TResult>;
+    load: LoadHandler<TResult, TParams>;
     onMutate?(): void;
-};
+}
+
+export type LoadHandler<TResult = any, TParams = any> = (params: TParams, options: LoadOptions) => Promise<TResult>;
+
+export interface LoadOptions {
+    abortSignal: AbortSignal;
+}
 
 export class AsyncController<TResult = any, TParams = any> {
+    private _stateCounter = 0;
     private _result?: TResult;
     private _prevResult?: TResult;
     private _loading = false;
     private _error?: any;
+    private _abortController?: AbortController;
 
     constructor(public readonly options: AsyncControllerOptions<TResult, TParams>) {
         const { initial } = options as any;
@@ -42,7 +50,13 @@ export class AsyncController<TResult = any, TParams = any> {
         this._prevResult = undefined;
         this._loading = false;
         this._error = undefined;
+        this._abortController?.abort();
+        this._abortController = undefined;
         this.handleMutate();
+    }
+
+    cancel() {
+        this._abortController?.abort();
     }
 
     async load(params: TParams): Promise<void> {
@@ -56,23 +70,37 @@ export class AsyncController<TResult = any, TParams = any> {
         this.loadImpl(callback, params!);
     }
 
-    private async loadImpl(callback: (params: TParams) => Promise<TResult>, params: TParams): Promise<void> {
+    private async loadImpl(callback: LoadHandler<TResult, TParams>, params: TParams): Promise<void> {
+        const currentState = ++this._stateCounter;
+        const isStateCurrent = () => currentState === this._stateCounter;
+
         try {
             this._prevResult = this._result;
             this._result = undefined;
             this._loading = true;
             this._error = undefined;
+            this._abortController?.abort();
+            this._abortController = new AbortController();
             this.handleMutate();
 
-            this._result = await callback(params);
-            this._loading = false;
-            this._error = undefined;
-            this.handleMutate();
+            const options: LoadOptions = {
+                abortSignal: this._abortController.signal
+            }
+            this._result = await callback(params, options);
+
+            if (isStateCurrent()) {
+                this._loading = false;
+                this._error = undefined;
+                this._abortController = undefined;
+                this.handleMutate();
+            }
         } catch (err) {
-            this._result = undefined;
-            this._loading = false;
-            this._error = err;
-            this.handleMutate();
+            if (isStateCurrent()) {
+                this._result = undefined;
+                this._loading = false;
+                this._error = err;
+                this.handleMutate();
+            }
             throw err;
         }
     }
