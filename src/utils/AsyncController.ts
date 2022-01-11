@@ -77,7 +77,9 @@ export class AsyncController<TResult = any, TParams = any> {
         const isStateCurrent = () => currentState === this._stateCounter;
 
         try {
-            this._prevResult = this._result;
+            if (this._result !== undefined) {
+                this._prevResult = this._result;
+            }
             this._result = undefined;
             this._loading = true;
             this._error = undefined;
