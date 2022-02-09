@@ -12,7 +12,7 @@ export interface AsyncRenderProps<TValue, TError = any> extends AsyncValueTempla
     renderLoading?: AsyncRenderFunction<TValue, TError>;
 }
 
-export function AsyncRender<TValue = any, TError = any>(props: AsyncRenderProps<TValue, TError>) {
+export function AsyncRender<TValue = any, TError = any>(props: AsyncRenderProps<TValue, TError>): ReactNode {
     const { children, renderValueWhileLoading, renderEmpty, renderError, renderLoading } = props;
     const { currValue, prevValue, loading, error } = props;
     const state = determineAsyncState(props);
