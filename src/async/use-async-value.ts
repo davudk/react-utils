@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useForceRender } from '..';
-import { AsyncState, AsyncValue, AsyncValueTemplate, determineAsyncState } from './async-value';
+import { AsyncValue, AsyncValueTemplate, determineAsyncState } from './async-value';
 
 export interface AsyncValueHookOptions<TValue, TError = any> {
-    state?: AsyncState;
     data?: TValue;
     value?: TValue;
     loading?: boolean;
@@ -51,15 +50,11 @@ export function useAsyncValue<TValue, TError = any>(options: AsyncValueHookOptio
     const { currValue, prevValue, loading, error } = memoizedValues;
 
     const t: AsyncValueTemplate<TValue, TError> = { currValue, prevValue, loading, error };
-    const state = determineAsyncState(t);
-
-    useEffect(() => {
-        memoizedValues.state = state;
-    }, [state]);
+    t.state = determineAsyncState(t);
 
     const asyncValue = useMemo(() => {
         return new AsyncValue(t);
-    }, [state, currValue, prevValue, loading, error])
+    }, [t.state, currValue, prevValue, loading, error])
 
     const setAsyncValue: AsyncValueHookSetterFunction<TValue, TError> = useCallback((t: AsyncValueTemplate<TValue, TError>) => {
         const v = new AsyncValue(t);
