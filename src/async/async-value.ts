@@ -2,14 +2,14 @@
 export type AsyncState = 'uninitialized' | 'loading' | 'resolved' | 'rejected';
 
 export interface AsyncValueTemplate<TValue, TError = any> {
-    readonly state?: AsyncState;
-    readonly currValue?: TValue;
-    readonly prevValue?: TValue;
-    readonly loading?: boolean;
-    readonly error?: TError;
+    state?: AsyncState;
+    currValue?: TValue;
+    prevValue?: TValue;
+    loading?: boolean;
+    error?: TError;
 }
 
-export class AsyncValue<TValue, TError = any> implements AsyncValueTemplate<TValue, TError> {
+export class AsyncValue<TValue, TError = any> implements Readonly<AsyncValueTemplate<TValue, TError>> {
     private _state?: AsyncState;
     public readonly currValue?: TValue;
     public readonly prevValue?: TValue;
@@ -36,6 +36,11 @@ export class AsyncValue<TValue, TError = any> implements AsyncValueTemplate<TVal
         else return this.prevValue;
     }
 
+    get template(): AsyncValueTemplate<TValue, TError> {
+        const { state, currValue, prevValue, loading, error } = this;
+        return { state, currValue, prevValue, loading, error };
+    }
+
     morph(action: 'reset'): AsyncValue<TValue, TError>;
     morph(action: 'clear'): AsyncValue<TValue, TError>;
     morph(state: 'loading'): AsyncValue<TValue, TError>;
@@ -54,7 +59,7 @@ export class AsyncValue<TValue, TError = any> implements AsyncValueTemplate<TVal
         return new AsyncValue();
     }
 
-    static resolve<TValue, TError = any>(currValue: TValue, prevValue?: TValue): AsyncValue<TValue, TError> {
+    static resolved<TValue, TError = any>(currValue: TValue, prevValue?: TValue): AsyncValue<TValue, TError> {
         return new AsyncValue({ currValue, prevValue });
     }
 
@@ -62,7 +67,7 @@ export class AsyncValue<TValue, TError = any> implements AsyncValueTemplate<TVal
         return new AsyncValue({ loading: true });
     }
 
-    static reject<TValue, TError = any>(error: TError): AsyncValue<TValue, TError> {
+    static rejected<TValue, TError = any>(error: TError): AsyncValue<TValue, TError> {
         return new AsyncValue({ error });
     }
 }
