@@ -74,7 +74,7 @@ export class AsyncValue<TValue, TError = any> implements Readonly<AsyncValueTemp
 
 export function determineAsyncState<T>(v: AsyncValueTemplate<T>): AsyncState {
     if (v.state) return v.state;
-    else if (typeof v.error !== 'undefined' && v.error !== null) return 'rejected';
+    else if (v.error) return 'rejected';
     else if (v.loading) return 'loading';
     else if (typeof v.currValue !== 'undefined') return 'resolved';
     else return 'uninitialized';
