@@ -1,4 +1,4 @@
-export * from './components';
+export * from './async';
 export * from './hooks';
 export * from './utils';
 
