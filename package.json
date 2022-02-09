@@ -1,6 +1,6 @@
 {
   "name": "@davudk/react-utils",
-  "version": "1.0.39",
+  "version": "1.0.40",
   "description": "An assorted set of React utilities.",
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
