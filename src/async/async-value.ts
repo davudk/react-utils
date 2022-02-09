@@ -48,10 +48,10 @@ export class AsyncValue<TValue, TError = any> implements Readonly<AsyncValueTemp
     morph(state: 'rejected', error: TError): AsyncValue<TValue, TError>;
     morph(actionOrState: string, arg?: TValue | TError): AsyncValue<TValue, TError> {
         if (actionOrState === 'reset') return new AsyncValue();
-        else if (actionOrState === 'clear') return new AsyncValue({ prevValue: this.currentOrPrevious });
-        else if (actionOrState === 'loading') return new AsyncValue({ loading: true, prevValue: this.currentOrPrevious });
-        else if (actionOrState === 'resolved') return new AsyncValue({ currValue: arg as any, prevValue: this.currentOrPrevious });
-        else if (actionOrState === 'rejected') return new AsyncValue({ error: arg as any, prevValue: this.currentOrPrevious });
+        else if (actionOrState === 'clear') return new AsyncValue({ prevValue: this.currOrPrevValue });
+        else if (actionOrState === 'loading') return new AsyncValue({ loading: true, prevValue: this.currOrPrevValue });
+        else if (actionOrState === 'resolved') return new AsyncValue({ currValue: arg as any, prevValue: this.currOrPrevValue });
+        else if (actionOrState === 'rejected') return new AsyncValue({ error: arg as any, prevValue: this.currOrPrevValue });
         else throw new Error('Unknown morph action specified to AsyncValue.');
     }
 
