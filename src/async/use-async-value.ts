@@ -48,7 +48,6 @@ export function useAsyncValue<TValue, TError = any>(options: AsyncValueHookOptio
     }, [providedError]);
 
     const { currValue, prevValue, loading, error } = memoizedValues;
-
     const t: AsyncValueTemplate<TValue, TError> = { currValue, prevValue, loading, error };
     t.state = determineAsyncState(t);
 
