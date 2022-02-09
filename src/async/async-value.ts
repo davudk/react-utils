@@ -31,10 +31,6 @@ export class AsyncValue<TValue, TError = any> implements Readonly<AsyncValueTemp
         return this._state;
     }
 
-    get value(): TValue | undefined {
-        return this.currValue;
-    }
-
     get currOrPrevValue(): TValue | undefined {
         if (typeof this.currValue !== 'undefined') return this.currValue;
         else return this.prevValue;
@@ -83,3 +79,10 @@ export function determineAsyncState<T>(v: AsyncValueTemplate<T>): AsyncState {
     else if (typeof v.currValue !== 'undefined') return 'resolved';
     else return 'uninitialized';
 }
+
+// export function getValue<T>(v: T | AsyncValue<T> | AsyncValueTemplate<T> | undefined, type?: 'curr' | 'currOrPrev'): T | undefined {
+//     if (v instanceof AsyncValue) return type === 'currOrPrev' ? v.currOrPrevValue : v.currValue;
+//     else if (typeof (v as AsyncValueTemplate<T>)?.currValue !== 'undefined') return (v as AsyncValueTemplate<T>)?.currValue;
+//     else if (type === 'currOrPrev' && typeof (v as AsyncValueTemplate<T>)?.prevValue !== 'undefined') return (v as AsyncValueTemplate<T>)?.prevValue;
+//     else return v as any;
+// }
