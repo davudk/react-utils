@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { AsyncValueTemplate, determineAsyncState } from './async-value';
 
 export type AsyncRenderFunction<TValue, TError = any> = (props: AsyncValueTemplate<TValue, TError>) => ReactNode;
@@ -12,7 +12,7 @@ export interface AsyncRenderProps<TValue, TError = any> extends AsyncValueTempla
     renderLoading?: AsyncRenderFunction<TValue, TError>;
 }
 
-export function AsyncRender<TValue = any, TError = any>(props: AsyncRenderProps<TValue, TError>): ReactNode {
+export function AsyncRender<TValue = any, TError = any>(props: AsyncRenderProps<TValue, TError>): ReactElement {
     const { children, renderValueWhileLoading, renderEmpty, renderError, renderLoading } = props;
     const { currValue, prevValue, loading, error } = props;
     const state = determineAsyncState(props);
@@ -23,11 +23,15 @@ export function AsyncRender<TValue = any, TError = any>(props: AsyncRenderProps<
 
     const v: AsyncValueTemplate<TValue, TError> = { state, currValue, prevValue, loading, error };
 
-    switch (state) {
-        case 'uninitialized': return renderEmpty?.(v) ?? null;
-        case 'loading': return (renderValueWhileLoading ? renderData?.(v) : renderLoading?.(v)) ?? null;
-        case 'resolved': return renderData?.(v) ?? null;
-        case 'rejected': return renderError?.(v) ?? null;
-        default: return null;
-    }
+    const out = (() => {
+        switch (state) {
+            case 'uninitialized': return renderEmpty?.(v) ?? null;
+            case 'loading': return (renderValueWhileLoading ? renderData?.(v) : renderLoading?.(v)) ?? null;
+            case 'resolved': return renderData?.(v) ?? null;
+            case 'rejected': return renderError?.(v) ?? null;
+            default: return null;
+        }
+    })();
+
+    return <>{out}</>;
 }
