@@ -4,6 +4,7 @@ import { AsyncState, AsyncValue, AsyncValueTemplate, determineAsyncState } from 
 
 export interface AsyncValueHookOptions<TValue, TError = any> {
     state?: AsyncState;
+    data?: TValue;
     value?: TValue;
     loading?: boolean;
     error?: TError;
@@ -26,7 +27,9 @@ export interface AsyncValueHookHelperFunctions<TValue, TError = any> {
 }
 
 export function useAsyncValue<TValue, TError = any>(options: AsyncValueHookOptions<TValue, TError>): AsyncValueHookReturn<TValue, TError> {
-    const { value: providedValue, loading: providedLoading, error: providedError } = options;
+    const { loading: providedLoading, error: providedError } = options;
+    const providedValue = typeof options.data !== 'undefined' ? options.data : options.value;
+
     const { current: memoizedValues } = useRef<AsyncValueTemplate<TValue, TError>>({});
     const forceRender = useForceRender();
 
