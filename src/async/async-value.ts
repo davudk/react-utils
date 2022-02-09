@@ -31,6 +31,10 @@ export class AsyncValue<TValue, TError = any> implements Readonly<AsyncValueTemp
         return this._state;
     }
 
+    get value(): TValue | undefined {
+        return this.currValue;
+    }
+
     get currOrPrevValue(): TValue | undefined {
         if (typeof this.currValue !== 'undefined') return this.currValue;
         else return this.prevValue;
