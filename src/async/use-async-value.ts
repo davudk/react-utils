@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useForceRender } from '..';
 import { AsyncState, AsyncValue, AsyncValueTemplate, determineAsyncState } from './async-value';
 
@@ -11,11 +11,13 @@ export interface AsyncValueHookOptions<TValue, TError = any> {
 
 export type AsyncValueHookReturn<TValue, TError = any> = [
     AsyncValue<TValue, TError>,
+    AsyncValueHookSetterFunction<TValue, TError>,
     AsyncValueHookHelperFunctions<TValue, TError>
 ]
 
+export type AsyncValueHookSetterFunction<TValue, TError = any> = (value: AsyncValueTemplate<TValue, TError>) => AsyncValue<TValue, TError>;
+
 export interface AsyncValueHookHelperFunctions<TValue, TError = any> {
-    set(t: AsyncValueTemplate<TValue, TError>): AsyncValue<TValue, TError>;
     reset(): AsyncValue<TValue, TError>;
     clear(): AsyncValue<TValue, TError>;
     resolve(currValue: TValue, prevValue?: TValue): AsyncValue<TValue, TError>;
@@ -56,34 +58,36 @@ export function useAsyncValue<TValue, TError = any>(options: AsyncValueHookOptio
         return new AsyncValue(t);
     }, [state, currValue, prevValue, loading, error])
 
+    const setAsyncValue: AsyncValueHookSetterFunction<TValue, TError> = useCallback((t: AsyncValueTemplate<TValue, TError>) => {
+        const v = new AsyncValue(t);
+        Object.assign(memoizedValues, v.template);
+        forceRender();
+        return v;
+    }, []);
+
     const functions: AsyncValueHookHelperFunctions<TValue, TError> = useMemo(() => {
         return {
-            set(t: AsyncValueTemplate<TValue, TError>): AsyncValue<TValue, TError> {
-                const v = new AsyncValue(t);
-                Object.assign(memoizedValues, v.template);
-                forceRender();
-                return v;
-            },
             reset(): AsyncValue<TValue, TError> {
-                return this.set(asyncValue.morph('reset'));
+                return setAsyncValue(asyncValue.morph('reset'));
             },
             clear(): AsyncValue<TValue, TError> {
-                return this.set(asyncValue.morph('clear'));
+                return setAsyncValue(asyncValue.morph('clear'));
             },
             resolve(value: TValue): AsyncValue<TValue, TError> {
-                return this.set(asyncValue.morph('resolved', value));
+                return setAsyncValue(asyncValue.morph('resolved', value));
             },
             load(): AsyncValue<TValue, TError> {
-                return this.set(asyncValue.morph('loading'));
+                return setAsyncValue(asyncValue.morph('loading'));
             },
             reject(error: TError): AsyncValue<TValue, TError> {
-                return this.set(asyncValue.morph('rejected', error));
+                return setAsyncValue(asyncValue.morph('rejected', error));
             }
         };
     }, []);
 
     return [
         asyncValue,
+        setAsyncValue,
         functions
     ];
 }
